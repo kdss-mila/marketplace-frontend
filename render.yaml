@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: marketplace-frontend
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: NODE_ENV
+        value: production
+      - key: VITE_USE_MOCKS
+        value: "true"
+      - key: VITE_API_URL
+        value: /api
