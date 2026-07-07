@@ -1,7 +1,11 @@
 import api from '@/lib/axios'
 import type { Product, Category } from '@/types'
 
-export async function listProducts(params?: { q?: string; categoryId?: string }): Promise<Product[]> {
+export async function listProducts(params?: {
+  q?: string
+  categoryId?: string
+  includeSubcategories?: boolean
+}): Promise<Product[]> {
   const { data } = await api.get<Product[]>('/products', { params })
   return data
 }

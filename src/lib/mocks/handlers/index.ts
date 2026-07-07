@@ -73,6 +73,7 @@ export const catalogHandlers = [
     const url = new URL(request.url)
     const q = url.searchParams.get('q')?.toLowerCase()
     const categoryId = url.searchParams.get('categoryId')
+    const includeSubcategories = url.searchParams.get('includeSubcategories') === 'true'
     let products = [...db.products]
     if (q) {
       products = products.filter(
@@ -80,7 +81,13 @@ export const catalogHandlers = [
       )
     }
     if (categoryId) {
-      products = products.filter((p) => p.categoryId === categoryId)
+      const categoryIds = includeSubcategories
+        ? [
+            categoryId,
+            ...db.categories.filter((c) => c.parentId === categoryId).map((c) => c.id),
+          ]
+        : [categoryId]
+      products = products.filter((p) => categoryIds.includes(p.categoryId))
     }
     return HttpResponse.json(products)
   }),
@@ -332,6 +339,42 @@ export const adminHandlers = [
 ]
 
 export const shippingHandlers = [
+  http.get('/api/shipping/address/:cep', async ({ params }) => {
+    const cep = String(params.cep).replace(/\D/g, '')
+    if (cep.length !== 8) {
+      return HttpResponse.json({ message: 'CEP inválido' }, { status: 400 })
+    }
+
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+      if (!response.ok) {
+        return HttpResponse.json({ message: 'Erro ao consultar CEP' }, { status: 502 })
+      }
+      const data = (await response.json()) as {
+        cep: string
+        logradouro: string
+        complemento: string
+        bairro: string
+        localidade: string
+        uf: string
+        erro?: boolean
+      }
+      if (data.erro) {
+        return HttpResponse.json({ message: 'CEP não encontrado' }, { status: 404 })
+      }
+      return HttpResponse.json({
+        cep: cep,
+        street: data.logradouro,
+        neighborhood: data.bairro,
+        city: data.localidade,
+        state: data.uf,
+        complement: data.complemento || undefined,
+      })
+    } catch {
+      return HttpResponse.json({ message: 'Erro ao consultar CEP' }, { status: 502 })
+    }
+  }),
+
   http.post('/api/shipping/quote', async ({ request }) => {
     const body = (await request.json()) as {
       cepOrigem: string

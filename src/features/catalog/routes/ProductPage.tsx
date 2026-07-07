@@ -1,47 +1,62 @@
-import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { listProducts } from '@/features/catalog/api/catalogApi'
-import { formatCurrency } from '@/utils/format'
-import type { Product } from '@/types'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { listProducts, listCategories } from '@/features/catalog/api/catalogApi'
+import { getDepartmentByCategoryId } from '@/features/catalog/constants/departments'
+import { ProductCard } from '@/features/catalog/components/ProductCard'
+import type { Category, Product } from '@/types'
 
 export function SearchPage() {
   const [params] = useSearchParams()
   const q = params.get('q') ?? ''
+  const categoryId = params.get('categoryId') ?? ''
+  const includeSubcategories = params.get('includeSubcategories') === 'true'
   const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    listCategories().then(setCategories).catch(() => setCategories([]))
+  }, [])
+
+  useEffect(() => {
     setLoading(true)
-    listProducts({ q })
+    listProducts({
+      ...(q ? { q } : {}),
+      ...(categoryId ? { categoryId, includeSubcategories } : {}),
+    })
       .then(setProducts)
       .finally(() => setLoading(false))
-  }, [q])
+  }, [q, categoryId, includeSubcategories])
+
+  const pageTitle = useMemo(() => {
+    if (categoryId) {
+      const dept = getDepartmentByCategoryId(categoryId)
+      const category = categories.find((c) => c.id === categoryId)
+      return dept?.label ?? category?.name ?? 'Categoria'
+    }
+    if (q) return `Resultados para "${q}"`
+    return 'Todos os produtos'
+  }, [categoryId, q, categories])
 
   return (
     <div>
-      <h1 className="mb-2 text-2xl font-bold">Resultados para &quot;{q}&quot;</h1>
-      <p className="mb-6 text-muted-foreground">{products.length} produto(s) encontrado(s)</p>
+      <h1 className="mb-2 text-xl font-bold sm:text-2xl">{pageTitle}</h1>
+      <p className="mb-6 text-sm text-muted-foreground">
+        {loading ? 'Carregando...' : `${products.length} produto(s) encontrado(s)`}
+      </p>
+
       {loading ? (
-        <p>Carregando...</p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-96 animate-pulse rounded-xl bg-muted" />
+          ))}
+        </div>
       ) : products.length === 0 ? (
-        <p>Nenhum produto encontrado.</p>
+        <p className="py-12 text-center text-muted-foreground">Nenhum produto encontrado.</p>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => (
-            <Card key={product.id} className="overflow-hidden">
-              <img src={product.images[0]} alt={product.title} className="h-40 w-full object-cover" />
-              <CardContent className="p-4">
-                <h2 className="font-semibold">{product.title}</h2>
-                <p className="mt-1 font-bold">{formatCurrency(product.price)}</p>
-              </CardContent>
-              <CardFooter className="p-4 pt-0">
-                <Button asChild className="w-full">
-                  <Link to={`/produto/${product.id}`}>Ver produto</Link>
-                </Button>
-              </CardFooter>
-            </Card>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}
