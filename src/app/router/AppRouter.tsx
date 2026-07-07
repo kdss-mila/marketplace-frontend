@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { MainLayout, PanelLayout } from '@/components/layout/Layouts'
+import { MainLayout, CatalogLayout, PanelLayout } from '@/components/layout/Layouts'
 import { ProtectedRoute, RoleRoute } from '@/app/router/ProtectedRoute'
 import { HomePage } from '@/features/catalog/routes/HomePage'
 import { SearchPage } from '@/features/catalog/routes/ProductPage'
@@ -21,9 +21,12 @@ import { AdminRepassesPage } from '../../features/backoffice/routes/AdminRepasse
 export function AppRouter() {
   return (
     <Routes>
-      <Route element={<MainLayout />}>
+      <Route element={<CatalogLayout />}>
         <Route index element={<HomePage />} />
         <Route path="busca" element={<SearchPage />} />
+      </Route>
+
+      <Route element={<MainLayout />}>
         <Route path="produto/:id" element={<ProductDetailPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="registro" element={<RegisterPage />} />

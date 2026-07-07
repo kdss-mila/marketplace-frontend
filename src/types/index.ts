@@ -51,6 +51,7 @@ export interface OrderAddress {
   street: string
   number: string
   complement?: string
+  neighborhood?: string
   city: string
   state: string
 }
@@ -79,6 +80,15 @@ export interface ShippingQuote {
   valor: number
   prazoDias: number
   transportadora: string
+}
+
+export interface AddressLookup {
+  cep: string
+  street: string
+  neighborhood: string
+  city: string
+  state: string
+  complement?: string
 }
 
 export interface Repasse {
