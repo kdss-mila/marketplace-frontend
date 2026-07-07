@@ -42,7 +42,7 @@ isProject: false
 Implementação completa do frontend, em pasta atualmente vazia ([marketplace-frontend/](marketplace-frontend)), seguindo as duas referências:
 
 - **Requisitos** (`documento_requisitos_mvp_marketplace_v3.pdf`): RF-C, RF-V, RF-A e RF-I01.
-- **Arquitetura** (`documento_arquitetura_tecnica.pdf`): React + Vite + Tailwind + shadcn/ui + React Hook Form + Zod, organização **Feature-Based**, estado global via **Context API** (Auth + Cart), upload `multipart/form-data` para comprovantes.
+- **Arquitetura** (`documento_arquitetura_tecnica.pdf`): React + Vite + Tailwind + shadcn/ui + React Hook Form + Zod, organização **Feature-Based**, estado global via **Context API** (Auth + Cart) , upload `multipart/form-data` para comprovantes.
 
 Decisões tomadas com o usuário:
 
@@ -150,7 +150,7 @@ features/<nome>/
 
 ## 4. Estado global (Context API, conforme doc)
 
-- `AuthContext`: `uen`, `rser`, `tokole` (`buyer | seller | admin`), `login()`, `logout()`. Persistência em `localStorage`. Token injetado no `axios` via interceptor.
+- `AuthContext`: `user`, `token`, `role` (`buyer | seller | admin`), `login()`, `logout()`. Persistência em `localStorage`. Token injetado no `axios` via interceptor.
 - `CartContext`: `items`, `address`, `shippingQuote`, `addItem`, `removeItem`, `clear`, `setAddress`, `setShipping`. Persistência em `localStorage`.
 - `ProtectedRoute` + `RoleRoute` em `app/router/` para gating de rotas privadas (vendedor/admin).
 
