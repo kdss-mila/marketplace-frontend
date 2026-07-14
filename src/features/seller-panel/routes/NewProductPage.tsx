@@ -35,6 +35,7 @@ export function NewProductPage() {
       title: data.title,
       description: data.description,
       categoryId: data.categoryId,
+      brand: 'Outros',
       price: Number(data.price),
       stock: Number(data.stock),
       images: [data.imageUrl],

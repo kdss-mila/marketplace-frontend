@@ -74,6 +74,9 @@ export const catalogHandlers = [
     const q = url.searchParams.get('q')?.toLowerCase()
     const categoryId = url.searchParams.get('categoryId')
     const includeSubcategories = url.searchParams.get('includeSubcategories') === 'true'
+    const brand = url.searchParams.get('brand')
+    const minPrice = url.searchParams.get('minPrice')
+    const maxPrice = url.searchParams.get('maxPrice')
     let products = [...db.products]
     if (q) {
       products = products.filter(
@@ -88,6 +91,15 @@ export const catalogHandlers = [
           ]
         : [categoryId]
       products = products.filter((p) => categoryIds.includes(p.categoryId))
+    }
+    if (brand) {
+      products = products.filter((p) => p.brand.toLowerCase() === brand.toLowerCase())
+    }
+    if (minPrice) {
+      products = products.filter((p) => p.price >= Number(minPrice))
+    }
+    if (maxPrice) {
+      products = products.filter((p) => p.price <= Number(maxPrice))
     }
     return HttpResponse.json(products)
   }),

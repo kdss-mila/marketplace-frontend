@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { listProducts } from '@/features/catalog/api/catalogApi'
-import { getDepartmentBySlug, getProductListParams } from '@/features/catalog/constants/departments'
+import { getDepartmentBySlug } from '@/features/catalog/constants/departments'
+import { useCatalogFilters } from '@/features/catalog/hooks/useCatalogFilters'
 import { HeroCarousel } from '@/features/catalog/components/HeroCarousel'
 import { ValuePropositions } from '@/features/catalog/components/ValuePropositions'
-import { CategoryChips } from '@/features/catalog/components/CategoryChips'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { Button } from '@/components/ui/button'
 import {
@@ -63,11 +63,11 @@ function ProductCarousel({ products }: { products: Product[] }) {
       </div>
 
       <Carousel setApi={setApi} opts={{ align: 'start' }} className="w-full">
-        <CarouselContent className="-ml-4">
+        <CarouselContent className="-ml-4 items-stretch">
           {products.map((product) => (
             <CarouselItem
               key={product.id}
-              className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5"
+              className="flex pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5"
             >
               <ProductCard product={product} />
             </CarouselItem>
@@ -78,27 +78,53 @@ function ProductCarousel({ products }: { products: Product[] }) {
   )
 }
 
+function ProductGrid({ products }: { products: Product[] }) {
+  return (
+    <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  )
+}
+
 export function HomePage() {
+  const { filters, listParams, hasFilters } = useCatalogFilters()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [category, setCategory] = useState('all')
+
+  const filterKey = JSON.stringify(listParams)
 
   useEffect(() => {
     setLoading(true)
-    const dept = category === 'all' ? undefined : getDepartmentBySlug(category)
-    const params = dept ? getProductListParams(dept) : undefined
-    listProducts(params)
+    listProducts(Object.keys(listParams).length > 0 ? listParams : undefined)
       .then(setProducts)
       .finally(() => setLoading(false))
-  }, [category])
+  }, [filterKey, listParams])
+
+  const sectionTitle = useMemo(() => {
+    if (filters.dept) {
+      const dept = getDepartmentBySlug(filters.dept)
+      if (filters.sub && dept?.subcategories) {
+        const sub = dept.subcategories.find((item) => item.slug === filters.sub)
+        if (sub) return sub.label
+      }
+      return dept?.label ?? 'Produtos'
+    }
+    if (hasFilters) return 'Resultados filtrados'
+    return 'Destaques para você'
+  }, [filters.dept, filters.sub, hasFilters])
 
   return (
     <div className="space-y-6">
-      <HeroCarousel />
-      <ValuePropositions />
-      <CategoryChips selected={category} onSelect={setCategory} />
+      {!hasFilters && <HeroCarousel />}
+      {!hasFilters && <ValuePropositions />}
 
       <section>
+        {hasFilters && (
+          <h2 className="mb-4 text-lg font-bold sm:text-xl">{sectionTitle}</h2>
+        )}
+
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -107,8 +133,10 @@ export function HomePage() {
           </div>
         ) : products.length === 0 ? (
           <p className="py-12 text-center text-muted-foreground">
-            Nenhum produto encontrado nesta categoria.
+            Nenhum produto encontrado com os filtros selecionados.
           </p>
+        ) : hasFilters ? (
+          <ProductGrid products={products} />
         ) : (
           <ProductCarousel products={products} />
         )}
