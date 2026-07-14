@@ -3,6 +3,7 @@ import { MainLayout, CatalogLayout, PanelLayout } from '@/components/layout/Layo
 import { ProtectedRoute, RoleRoute } from '@/app/router/ProtectedRoute'
 import { HomePage } from '@/features/catalog/routes/HomePage'
 import { SearchPage } from '@/features/catalog/routes/ProductPage'
+import { FavoritesPage } from '@/features/catalog/routes/FavoritesPage'
 import { ProductDetailPage } from '@/features/catalog/routes/ProductDetailPage'
 import { LoginPage } from '@/features/auth/routes/LoginPage'
 import { RegisterPage } from '@/features/auth/routes/RegisterPage'
@@ -24,6 +25,7 @@ export function AppRouter() {
       <Route element={<CatalogLayout />}>
         <Route index element={<HomePage />} />
         <Route path="busca" element={<SearchPage />} />
+        <Route path="favoritos" element={<FavoritesPage />} />
       </Route>
 
       <Route element={<MainLayout />}>

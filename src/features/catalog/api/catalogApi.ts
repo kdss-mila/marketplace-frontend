@@ -5,6 +5,9 @@ export async function listProducts(params?: {
   q?: string
   categoryId?: string
   includeSubcategories?: boolean
+  brand?: string
+  minPrice?: number
+  maxPrice?: number
 }): Promise<Product[]> {
   const { data } = await api.get<Product[]>('/products', { params })
   return data

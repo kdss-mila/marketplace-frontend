@@ -1,15 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { listProducts, listCategories } from '@/features/catalog/api/catalogApi'
-import { getDepartmentByCategoryId } from '@/features/catalog/constants/departments'
+import { getDepartmentByCategoryId, getDepartmentBySlug } from '@/features/catalog/constants/departments'
+import { useCatalogFilters } from '@/features/catalog/hooks/useCatalogFilters'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import type { Category, Product } from '@/types'
 
 export function SearchPage() {
-  const [params] = useSearchParams()
-  const q = params.get('q') ?? ''
-  const categoryId = params.get('categoryId') ?? ''
-  const includeSubcategories = params.get('includeSubcategories') === 'true'
+  const { filters, listParams } = useCatalogFilters()
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -18,25 +15,32 @@ export function SearchPage() {
     listCategories().then(setCategories).catch(() => setCategories([]))
   }, [])
 
+  const filterKey = JSON.stringify(listParams)
+
   useEffect(() => {
     setLoading(true)
-    listProducts({
-      ...(q ? { q } : {}),
-      ...(categoryId ? { categoryId, includeSubcategories } : {}),
-    })
+    listProducts(Object.keys(listParams).length > 0 ? listParams : undefined)
       .then(setProducts)
       .finally(() => setLoading(false))
-  }, [q, categoryId, includeSubcategories])
+  }, [filterKey, listParams])
 
   const pageTitle = useMemo(() => {
-    if (categoryId) {
-      const dept = getDepartmentByCategoryId(categoryId)
-      const category = categories.find((c) => c.id === categoryId)
+    if (filters.dept) {
+      const dept = getDepartmentBySlug(filters.dept)
+      if (filters.sub && dept?.subcategories) {
+        const sub = dept.subcategories.find((item) => item.slug === filters.sub)
+        if (sub) return sub.label
+      }
+      return dept?.label ?? 'Categoria'
+    }
+    if (filters.categoryId) {
+      const dept = getDepartmentByCategoryId(filters.categoryId)
+      const category = categories.find((c) => c.id === filters.categoryId)
       return dept?.label ?? category?.name ?? 'Categoria'
     }
-    if (q) return `Resultados para "${q}"`
+    if (filters.q) return `Resultados para "${filters.q}"`
     return 'Todos os produtos'
-  }, [categoryId, q, categories])
+  }, [filters, categories])
 
   return (
     <div>
@@ -54,7 +58,7 @@ export function SearchPage() {
       ) : products.length === 0 ? (
         <p className="py-12 text-center text-muted-foreground">Nenhum produto encontrado.</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

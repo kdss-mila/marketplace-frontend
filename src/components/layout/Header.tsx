@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  ShoppingBag,
   Search,
   Heart,
   ClipboardList,
@@ -11,6 +10,8 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/app/providers/AuthProvider'
 import { useCart } from '@/app/providers/CartProvider'
+import { useFavorites } from '@/app/providers/FavoritesProvider'
+import { BrandLogo } from '@/components/layout/BrandLogo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -56,6 +57,7 @@ function NavLink({
 export function Header() {
   const { user, logout } = useAuth()
   const { itemCount } = useCart()
+  const { favoriteCount } = useFavorites()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
 
@@ -71,12 +73,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b bg-white shadow-sm">
       <div className="container mx-auto flex h-16 items-center gap-3 px-4 lg:gap-6">
-        <Link to="/" className="flex shrink-0 items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
-            <ShoppingBag className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="hidden text-lg font-bold text-foreground sm:block">MarketPlace</span>
-        </Link>
+        <BrandLogo />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -117,7 +114,7 @@ export function Header() {
         </form>
 
         <nav className="flex shrink-0 items-center gap-1 sm:gap-2">
-          <NavLink to="/" icon={Heart} label="Favoritos" />
+          <NavLink to="/favoritos" icon={Heart} label="Favoritos" badge={favoriteCount} />
           <NavLink to="/conta/pedidos" icon={ClipboardList} label="Pedidos" />
           <NavLink to="/carrinho" icon={ShoppingCart} label="Carrinho" badge={itemCount} />
 

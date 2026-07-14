@@ -37,7 +37,7 @@ export function LoginPage() {
       <Card>
         <CardHeader>
           <CardTitle>Entrar</CardTitle>
-          <CardDescription>Acesse sua conta no marketplace</CardDescription>
+          <CardDescription>Acesse sua conta na EasyShop</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

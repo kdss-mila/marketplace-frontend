@@ -32,6 +32,7 @@ export interface Product {
   price: number
   stock: number
   categoryId: string
+  brand: string
   sellerId: string
   sellerName: string
   images: string[]

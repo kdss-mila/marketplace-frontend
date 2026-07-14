@@ -1,12 +1,15 @@
+import { BrandLogo } from '@/components/layout/BrandLogo'
+
 export function Footer() {
   return (
     <footer className="mt-auto border-t bg-white py-8">
       <div className="container mx-auto px-4">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <h3 className="font-semibold">MarketPlace</h3>
+            <BrandLogo showText={false} className="pointer-events-none" />
+            <p className="mt-3 text-sm font-semibold">EasyShop</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Seu marketplace completo com as melhores ofertas e entrega rápida.
+              Comprar ficou fácil. As melhores ofertas com entrega rápida.
             </p>
           </div>
           <div>
@@ -28,13 +31,13 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold">Contato</h4>
             <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-              <li>suporte@marketplace.com</li>
+              <li>suporte@easyshop.com</li>
               <li>0800 000 0000</li>
             </ul>
           </div>
         </div>
         <p className="mt-8 border-t pt-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} MarketPlace — Todos os direitos reservados
+          © {new Date().getFullYear()} EasyShop — Todos os direitos reservados
         </p>
       </div>
     </footer>
