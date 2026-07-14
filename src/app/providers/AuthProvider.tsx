@@ -20,14 +20,33 @@ const STORAGE_KEY = 'marketplace_auth'
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
+function isValidStoredUser(candidate: unknown): candidate is User {
+  if (!candidate || typeof candidate !== 'object') return false
+  const u = candidate as Record<string, unknown>
+  return (
+    typeof u.id === 'string' &&
+    typeof u.email === 'string' &&
+    typeof u.name === 'string' &&
+    typeof u.role === 'string'
+  )
+}
+
 function loadStoredAuth(): AuthState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return { user: null, token: null, loading: true }
-    const { user, token } = JSON.parse(raw) as { user: User; token: string }
-    setAuthToken(token)
-    return { user, token, loading: true }
+    const parsed = JSON.parse(raw) as { user?: unknown; token?: unknown }
+    // Snapshots de versões antigas (mocks) podem ter shape divergente ou
+    // faltando campos obrigatórios; descarta silenciosamente para não
+    // quebrar o Header/páginas que assumem name/role/etc.
+    if (typeof parsed.token !== 'string' || !isValidStoredUser(parsed.user)) {
+      localStorage.removeItem(STORAGE_KEY)
+      return { user: null, token: null, loading: true }
+    }
+    setAuthToken(parsed.token)
+    return { user: parsed.user, token: parsed.token, loading: true }
   } catch {
+    localStorage.removeItem(STORAGE_KEY)
     return { user: null, token: null, loading: true }
   }
 }
