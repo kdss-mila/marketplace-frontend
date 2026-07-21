@@ -18,6 +18,15 @@ export async function updateSellerProduct(id: string, payload: Partial<Product>)
   return data
 }
 
+export async function uploadProductImage(file: File): Promise<string> {
+  const form = new FormData()
+  form.append('file', file)
+  const { data } = await api.post<{ url: string }>('/seller/products/upload-image', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return data.url
+}
+
 export async function deleteSellerProduct(id: string): Promise<void> {
   await api.delete(`/seller/products/${id}`)
 }

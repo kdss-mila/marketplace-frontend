@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { listCategories } from '@/features/catalog/api/catalogApi'
 import { createSellerProduct } from '@/features/seller-panel/api/sellerApi'
+import { ImageUploader } from '@/features/seller-panel/components/ImageUploader'
 import type { Category } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,14 +17,14 @@ interface FormData {
   categoryId: string
   price: number
   stock: number
-  imageUrl: string
+  images: string[]
 }
 
 export function NewProductPage() {
   const navigate = useNavigate()
   const [categories, setCategories] = useState<Category[]>([])
-  const { register, handleSubmit, setValue, watch } = useForm<FormData>({
-    defaultValues: { imageUrl: 'https://picsum.photos/seed/new/600/600' },
+  const { register, handleSubmit, setValue, watch, control, formState: { errors } } = useForm<FormData>({
+    defaultValues: { images: [] },
   })
 
   useEffect(() => {
@@ -31,6 +32,8 @@ export function NewProductPage() {
   }, [])
 
   async function onSubmit(data: FormData) {
+    if (data.images.length === 0) return
+
     await createSellerProduct({
       title: data.title,
       description: data.description,
@@ -38,12 +41,14 @@ export function NewProductPage() {
       brand: 'Outros',
       price: Number(data.price),
       stock: Number(data.stock),
-      images: [data.imageUrl],
+      images: data.images,
       weight: 0.5,
       dimensions: { width: 20, height: 10, length: 15 },
     })
     navigate('/vendedor/anuncios')
   }
+
+  const images = watch('images')
 
   return (
     <div className="max-w-xl">
@@ -83,10 +88,22 @@ export function NewProductPage() {
           </div>
         </div>
         <div>
-          <Label>URL da imagem</Label>
-          <Input {...register('imageUrl')} />
+          <Label>Imagens do produto</Label>
+          <Controller
+            name="images"
+            control={control}
+            rules={{ validate: (v) => v.length > 0 || 'Adicione pelo menos uma imagem.' }}
+            render={({ field }) => (
+              <ImageUploader value={field.value} onChange={field.onChange} />
+            )}
+          />
+          {errors.images && (
+            <p className="mt-1 text-sm text-red-500">{errors.images.message}</p>
+          )}
         </div>
-        <Button type="submit">Publicar anúncio</Button>
+        <Button type="submit" disabled={images.length === 0}>
+          Publicar anúncio
+        </Button>
       </form>
     </div>
   )
