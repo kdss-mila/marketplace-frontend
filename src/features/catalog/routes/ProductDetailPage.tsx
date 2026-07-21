@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import { getProduct } from '@/features/catalog/api/catalogApi'
@@ -8,6 +8,14 @@ import { formatCurrency } from '@/utils/format'
 import type { Product } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+  type CarouselApi,
+} from '@/components/ui/carousel'
 import { cn } from '@/lib/utils'
 
 export function ProductDetailPage() {
@@ -17,6 +25,8 @@ export function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [added, setAdded] = useState(false)
+  const [api, setApi] = useState<CarouselApi>()
+  const [current, setCurrent] = useState(0)
 
   useEffect(() => {
     if (!id) return
@@ -25,8 +35,23 @@ export function ProductDetailPage() {
       .finally(() => setLoading(false))
   }, [id])
 
+  const onSelect = useCallback((embla: CarouselApi) => {
+    if (!embla) return
+    setCurrent(embla.selectedScrollSnap())
+  }, [])
+
+  useEffect(() => {
+    if (!api) return
+    onSelect(api)
+    api.on('select', onSelect)
+    api.on('reInit', onSelect)
+    return () => { api.off('select', onSelect) }
+  }, [api, onSelect])
+
   if (loading) return <p>Carregando...</p>
   if (!product) return <p>Produto não encontrado.</p>
+
+  const hasMultiple = product.images.length > 1
 
   function handleBuy() {
     addItem({
@@ -57,15 +82,52 @@ export function ProductDetailPage() {
     })
   }
 
-  const favorited = product ? isFavorite(product.id) : false
+  const favorited = isFavorite(product.id)
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">
-      <img
-        src={product.images[0]}
-        alt={product.title}
-        className="aspect-square w-full rounded-lg object-cover"
-      />
+      <div className="space-y-3">
+        <div className="relative px-10">
+          <Carousel setApi={setApi} opts={{ loop: false }}>
+            <CarouselContent>
+              {product.images.map((url, i) => (
+                <CarouselItem key={url}>
+                  <img
+                    src={url}
+                    alt={`${product.title} — imagem ${i + 1}`}
+                    className="aspect-square w-full rounded-lg object-cover"
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {hasMultiple && (
+              <>
+                <CarouselPrevious />
+                <CarouselNext />
+              </>
+            )}
+          </Carousel>
+        </div>
+
+        {hasMultiple && (
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {product.images.map((url, i) => (
+              <button
+                key={url}
+                type="button"
+                onClick={() => api?.scrollTo(i)}
+                className={cn(
+                  'h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 transition',
+                  i === current ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'
+                )}
+              >
+                <img src={url} alt={`Miniatura ${i + 1}`} className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div>
         <Badge variant="secondary" className="mb-2">
           Estoque: {product.stock}
