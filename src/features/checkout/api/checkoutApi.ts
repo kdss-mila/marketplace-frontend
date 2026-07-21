@@ -2,39 +2,6 @@ import api from '@/lib/axios'
 import type { AddressLookup, Order, OrderAddress, ShippingQuote } from '@/types'
 import { isValidCep, onlyDigits } from '@/utils/format'
 
-interface ViaCepResponse {
-  cep: string
-  logradouro: string
-  complemento: string
-  bairro: string
-  localidade: string
-  uf: string
-  erro?: boolean
-}
-
-function mapViaCepResponse(data: ViaCepResponse): AddressLookup {
-  return {
-    cep: onlyDigits(data.cep),
-    street: data.logradouro,
-    neighborhood: data.bairro,
-    city: data.localidade,
-    state: data.uf,
-    complement: data.complemento || undefined,
-  }
-}
-
-async function fetchViaCep(cep: string): Promise<AddressLookup> {
-  const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
-  if (!response.ok) {
-    throw new Error('Não foi possível consultar o CEP')
-  }
-  const data = (await response.json()) as ViaCepResponse
-  if (data.erro) {
-    throw new Error('CEP não encontrado')
-  }
-  return mapViaCepResponse(data)
-}
-
 export async function createOrder(payload: {
   productId: string
   quantity: number
@@ -65,12 +32,8 @@ export async function lookupAddressByCep(cep: string): Promise<AddressLookup> {
     throw new Error('Informe um CEP válido com 8 dígitos')
   }
 
-  try {
-    const { data } = await api.get<AddressLookup>(`/shipping/address/${digits}`)
-    return data
-  } catch {
-    return fetchViaCep(digits)
-  }
+  const { data } = await api.get<AddressLookup>(`/shipping/address/${digits}`)
+  return data
 }
 
 export async function getShippingQuote(payload: {

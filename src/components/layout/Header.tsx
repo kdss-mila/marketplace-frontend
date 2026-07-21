@@ -66,7 +66,7 @@ export function Header() {
     }
   }
 
-  const firstName = user?.name.split(' ')[0] ?? 'Conta'
+  const firstName = user?.name?.split(' ')[0] ?? 'Conta'
 
   return (
     <header className="sticky top-0 z-40 border-b bg-white shadow-sm">
