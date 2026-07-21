@@ -5,7 +5,6 @@ import {
   ClipboardList,
   ShoppingCart,
   ChevronDown,
-  Menu,
   LogOut,
 } from 'lucide-react'
 import { useAuth } from '@/app/providers/AuthProvider'
@@ -22,7 +21,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useState, type FormEvent } from 'react'
-import { departments, getDepartmentSearchPath } from '@/features/catalog/constants/departments'
 import { cn } from '@/lib/utils'
 
 function NavLink({
@@ -75,28 +73,10 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center gap-3 px-4 lg:gap-6">
         <BrandLogo />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="hidden shrink-0 gap-1.5 md:flex">
-              <Menu className="h-4 w-4" />
-              Categorias
-              <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-48">
-            {departments.map((dept) => (
-              <DropdownMenuItem
-                key={dept.slug}
-                onClick={() => navigate(getDepartmentSearchPath(dept))}
-              >
-                {dept.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+
 
         <form onSubmit={handleSearch} className="flex flex-1 items-center">
-          <div className="relative flex w-full items-center">
+          <div className="relative  flex w-full items-center">
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
