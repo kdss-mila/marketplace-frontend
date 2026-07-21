@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <BrandLogo showText={false} className="pointer-events-none" />
-            <p className="mt-3 text-sm font-semibold">EasyShop</p>
+            <p className="mt-3 text-sm font-semibold">SuperMarketShop</p>
             <p className="mt-2 text-sm text-muted-foreground">
               Comprar ficou fácil. As melhores ofertas com entrega rápida.
             </p>
@@ -31,13 +31,13 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold">Contato</h4>
             <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-              <li>suporte@easyshop.com</li>
+              <li>suporte@supermarketshop.com</li>
               <li>0800 000 0000</li>
             </ul>
           </div>
         </div>
         <p className="mt-8 border-t pt-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} EasyShop — Todos os direitos reservados
+          © {new Date().getFullYear()} SuperMarketShop — Todos os direitos reservados
         </p>
       </div>
     </footer>

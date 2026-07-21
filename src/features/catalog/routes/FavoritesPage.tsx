@@ -1,13 +1,32 @@
 import { Link } from 'react-router-dom'
 import { Heart, ShoppingCart } from 'lucide-react'
+import { useAuth } from '@/app/providers/AuthProvider'
 import { useFavorites } from '@/app/providers/FavoritesProvider'
 import { useCart } from '@/app/providers/CartProvider'
 import { formatCurrency } from '@/utils/format'
 import { Button } from '@/components/ui/button'
 
 export function FavoritesPage() {
+  const { user } = useAuth()
   const { favorites, removeFavorite } = useFavorites()
   const { addItem } = useCart()
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+          <Heart className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <h1 className="text-xl font-bold">Entre para ver seus favoritos</h1>
+        <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+          Faça login para salvar e acessar os produtos que você curtiu.
+        </p>
+        <Button asChild className="mt-6">
+          <Link to="/login">Entrar</Link>
+        </Button>
+      </div>
+    )
+  }
 
   if (favorites.length === 0) {
     return (

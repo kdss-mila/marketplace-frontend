@@ -9,7 +9,7 @@ interface BrandLogoProps {
 export function BrandLogo({ showText = true, className }: BrandLogoProps) {
   return (
     <Link to="/" className={cn('flex shrink-0 items-center gap-2.5', className)}>
-      <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm">
+      <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-teal-600 shadow-sm">
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -32,7 +32,7 @@ export function BrandLogo({ showText = true, className }: BrandLogoProps) {
       </div>
       {showText && (
         <span className="hidden text-lg font-bold tracking-tight sm:block">
-          <span className="text-emerald-600">Easy</span>
+          <span className="text-blue-700">SuperMarket</span>
           <span className="text-foreground">Shop</span>
         </span>
       )}

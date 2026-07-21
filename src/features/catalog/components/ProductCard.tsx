@@ -48,7 +48,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <article className="group flex h-full w-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md">
+    <article className="flex h-full w-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md">
       <div className="relative h-44 shrink-0 bg-muted/40 p-4">
         {meta.discount > 0 && (
           <Badge className="absolute left-3 top-3 border-0 bg-red-500 text-white hover:bg-red-500">
@@ -70,7 +70,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <img
             src={product.images[0]}
             alt={product.title}
-            className="max-h-full w-full object-contain transition-transform group-hover:scale-105"
+            className="max-h-full w-full object-contain"
           />
         </Link>
       </div>
